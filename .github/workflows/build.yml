@@ -1,0 +1,40 @@
+name: Lint and Test
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Install PSScriptAnalyzer and Pester
+      - name: Install PSScriptAnalyzer and Pester
+        shell: pwsh
+        run : |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Force
+          Install-Module Pester -Force
+
+      # Run PSScriptAnalyzer
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run : |
+          Invoke-ScriptAnalyzer -Path *.ps1 -Recurse -OutVariable Issues
+          $Errors = $Issues.Where( { $_.Severity -eq 'Error' })
+          $Warnings = $Issues.Where( { $_.Severity -eq 'Warning' })
+          $Informational = $Issues.Where( { $_.Severity -eq 'Information' })
+          if ($errors) { Throw "Errors: $($Errors.Count) `nWarnings: $($Warnings.Count) `nInformational: $($Informational.Count)" }
+          else { Write-Output "Errors: $($Errors.Count) `nWarnings: $($Warnings.Count) `nInformational: $($Informational.Count)" }
+
+      # Run Pester
+      - name: Run Pester
+        shell: pwsh
+        run : |
+          Invoke-Pester -Output Detailed -PassThru -ErrorAction Stop
