@@ -27,7 +27,7 @@ Author: ChrisMKV
 		[string[]]$InputObject,
 
 		#Size unit to apply for the conversion. Default is MB - Megabytes.
-		[parameter(Position = 2)]
+		[parameter(Position = 1)]
 		[validateset('KB', 'MB', 'GB', 'TB')]
 		[string]$Unit = 'MB'
 	)
