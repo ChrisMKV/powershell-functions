@@ -1,4 +1,4 @@
-BeforeAll { ./ConvertFrom-ByteQuantifiedSizeString.ps1 }
+BeforeAll { . $PSScriptRoot/ConvertFrom-ByteQuantifiedSizeString.ps1 }
 
 Describe 'ConvertFrom-ByteQuantifiedSizeString' {
 	Context 'Called without Unit parameter' {
