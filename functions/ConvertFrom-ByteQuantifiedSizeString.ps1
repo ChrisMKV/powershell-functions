@@ -1,5 +1,5 @@
 function ConvertFrom-ByteQuantifiedSizeString {
-	<#
+<#
 .SYNOPSIS
 Converts strings containing "byte-quantified size" values into a numerical value
 .DESCRIPTION
@@ -15,6 +15,7 @@ Converts the "ProhibitSendQuota" value from "20 GB (21,474,836,480 bytes)" to "2
 .NOTES
 Author: ChrisMKV
 2023-05-17 v1.0 Initial version
+2023-05-22 v1.1 Fix Regex to allow B, KB and decimal values
 #>
 
 	[CmdletBinding()]
@@ -23,18 +24,18 @@ Author: ChrisMKV
 	param(
 		#A string with a "byte-quantified size" type value. Example: "20 GB (21,474,836,480 bytes)"
 		[parameter(Mandatory, Position = 0, ValueFromPipeline)]
-		[validatepattern('^\d+\s{1}(KB|MB|GB|TB)\s{1}\([0-9,]+\w{1} bytes\)$')]
+        [validatepattern('^[\d,.]+ (B|KB|MB|GB|TB) \([0-9.,]+ bytes\)$')]
 		[string[]]$InputObject,
 
-		#Size unit to apply for the conversion. Default is MB - Megabytes.
-		[parameter(Position = 1)]
-		[validateset('KB', 'MB', 'GB', 'TB')]
+		#Size unit to apply during the conversion. Default is MB - Megabytes. Allowed are 
+		[parameter(Position = 2)]
+		[validateset('KB', 'MB', 'GB', 'TB')] 
 		[string]$Unit = 'MB'
 	)
 
 	Process {
 		$InputObject | ForEach-Object {
-			[int](($_ -replace '.*\(| bytes\).*|,') / ([string]$Unit = '1' + $Unit))
+		    [int](($_ -replace '.*\(| bytes\).*|,') / ([string]$Unit = '1' + $Unit))
 		}
 	}
 }
