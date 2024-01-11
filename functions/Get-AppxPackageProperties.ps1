@@ -36,10 +36,10 @@ function Get-AppxPackageProperties {
 			[string]$TempFile = (New-TemporaryFile).FullName
 
 			#Open the .msix file and extract the AppxManifest.xml file
-			$MsixFile = [System.IO.Compression.ZipFile]::OpenRead($Path)
-			$AppxManifestArchiveEntry = $MsixFile.Entries | Where-Object { $_.Name -eq 'AppxManifest.xml' } | Select-Object -First 1
-			if ($null -eq $AppxManifestArchiveEntry) { Throw [System.ApplicationException]::New("The package '{0}' does not contain an AppxManifest.xml file." -f $Path.FullName) }
-			$AppxManifestArchiveEntry | ForEach-Object { [System.IO.Compression.ZipFileExtensions]::ExtractToFile($_, $TempFile, $true) }
+			$AppxContainer = [System.IO.Compression.ZipFile]::OpenRead($Path.FullName)
+			$AppxManifestFile = $AppxContainer.Entries | Where-Object { $_.Name -eq 'AppxManifest.xml' } | Select-Object -First 1
+			if ($null -eq $AppxManifestFile) { Throw [System.ApplicationException]::New("The package '{0}' does not contain an AppxManifest.xml file." -f $Path.FullName) }
+			$AppxManifestFile | ForEach-Object { [System.IO.Compression.ZipFileExtensions]::ExtractToFile($_, $TempFile, $true) }
 
 			#Convert the extracted AppxManifest back to an .xml object for easy access to properties
 			[xml]$AppxManifest = Get-Content -Path $TempFile -ErrorAction Stop
@@ -53,10 +53,10 @@ function Get-AppxPackageProperties {
 				ProcessorArchitecture = $AppXManifest.Package.Identity.ProcessorArchitecture
 			}
 		} catch {
-			Write-Error $PSItem
+			Write-Error -ErrorRecord $_
 		} finally {
 			Remove-Item $TempFile -ErrorAction SilentlyContinue
-			if ($MsixFile -is [System.IO.Compression.ZipArchive]) { $MsixFile.Dispose() }
+			if ($AppxContainer -is [System.IO.Compression.ZipArchive]) { $AppxContainer.Dispose() }
 		}
 	}
 }
