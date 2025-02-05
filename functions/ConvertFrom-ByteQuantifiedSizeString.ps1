@@ -27,9 +27,9 @@ Author: ChrisMKV
         [validatepattern('^[\d,.]+ (B|KB|MB|GB|TB) \([0-9.,]+ bytes\)$')]
 		[string[]]$InputObject,
 
-		#Size unit to apply during the conversion. Default is MB - Megabytes. Allowed are 
-		[parameter(Position = 2)]
-		[validateset('KB', 'MB', 'GB', 'TB')] 
+		#Size unit to apply during the conversion. Default is MB - Megabytes. Allowed are
+		[parameter(Position = 1)]
+		[validateset('KB', 'MB', 'GB', 'TB')]
 		[string]$Unit = 'MB'
 	)
 
